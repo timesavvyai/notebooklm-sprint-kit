@@ -1,0 +1,1705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NotebookLM Monetization Engine — Your Sprint Kit</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --deep: #0d0618;
+  --plum: #1a0a2e;
+  --purple: #2a1245;
+  --gold: #c9933a;
+  --gold-lt: #e3c77a;
+  --fuchsia: #d4186c;
+  --white: #fff;
+  --off: #faf8f5;
+  --soft: #f3f0ec;
+  --muted: #7a6888;
+  --body: #2a1245;
+}
+
+body {
+  font-family: 'Montserrat', sans-serif;
+  background: var(--off);
+  color: var(--body);
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+/* ── PRINT ── */
+@media print {
+  .no-print { display: none !important; }
+  .page-break { page-break-before: always; }
+  body { background: white; }
+  .cover { min-height: auto; padding: 60px 40px; }
+}
+
+/* ── COVER ── */
+.cover {
+  background: linear-gradient(155deg, #0d0618 0%, #1a0a2e 45%, #250f3d 100%);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 80px 48px;
+  position: relative;
+  overflow: hidden;
+}
+
+.cover-glow {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+}
+.cover-glow-1 {
+  width: 500px; height: 350px;
+  background: radial-gradient(ellipse, rgba(201,147,58,0.12) 0%, transparent 70%);
+  top: 10%; left: -8%;
+}
+.cover-glow-2 {
+  width: 400px; height: 400px;
+  background: radial-gradient(ellipse, rgba(212,24,108,0.09) 0%, transparent 70%);
+  bottom: 5%; right: -5%;
+}
+
+.leopard-bg {
+  position: absolute;
+  inset: 0;
+  opacity: 0.04;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cellipse cx='25' cy='20' rx='10' ry='6' fill='%23c9933a' transform='rotate(-25 25 20)'/%3E%3Cellipse cx='80' cy='45' rx='9' ry='5' fill='%23c9933a' transform='rotate(15 80 45)'/%3E%3Cellipse cx='40' cy='80' rx='11' ry='6' fill='%23c9933a' transform='rotate(-10 40 80)'/%3E%3Cellipse cx='100' cy='95' rx='8' ry='5' fill='%23c9933a' transform='rotate(30 100 95)'/%3E%3Cellipse cx='10' cy='60' rx='7' ry='4' fill='%23c9933a' transform='rotate(20 10 60)'/%3E%3C/svg%3E");
+  background-size: 120px 120px;
+}
+
+.cover-badge {
+  display: inline-block;
+  border: 1px solid rgba(201,147,58,0.5);
+  color: var(--gold-lt);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  padding: 8px 20px;
+  border-radius: 40px;
+  margin-bottom: 36px;
+}
+
+.cover h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(38px, 6vw, 68px);
+  font-weight: 900;
+  color: var(--gold);
+  line-height: 1.1;
+  letter-spacing: -1px;
+  margin-bottom: 16px;
+}
+
+.cover h1 span {
+  color: var(--white);
+  display: block;
+  font-size: 0.55em;
+  font-weight: 700;
+  letter-spacing: 0px;
+  margin-top: 8px;
+}
+
+.cover-divider {
+  width: 80px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  margin: 28px auto;
+}
+
+.cover-tagline {
+  font-size: 16px;
+  color: rgba(255,255,255,0.7);
+  max-width: 520px;
+  line-height: 1.8;
+  margin-bottom: 40px;
+}
+
+.cover-promise {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 48px;
+}
+
+.cover-promise-item {
+  color: rgba(255,255,255,0.55);
+  font-size: 13px;
+  letter-spacing: 0.5px;
+}
+
+.cover-promise-item strong {
+  color: var(--gold-lt);
+  font-weight: 600;
+}
+
+.cover-author {
+  margin-top: 20px;
+  padding-top: 24px;
+  border-top: 1px solid rgba(201,147,58,0.2);
+  color: rgba(255,255,255,0.4);
+  font-size: 12px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.cover-author strong {
+  color: rgba(255,255,255,0.7);
+}
+
+/* ── LAYOUT ── */
+.page-wrap {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 0 32px 80px;
+}
+
+/* ── MIC DROP SECTION ── */
+.mic-drop {
+  background: linear-gradient(135deg, var(--deep) 0%, var(--plum) 100%);
+  padding: 72px 48px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.mic-drop::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 600px 200px at 50% 50%, rgba(201,147,58,0.08), transparent);
+}
+
+.mic-drop p {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(22px, 3.5vw, 36px);
+  color: var(--white);
+  line-height: 1.4;
+  max-width: 640px;
+  margin: 0 auto;
+  position: relative;
+}
+
+.mic-drop p em {
+  color: var(--gold);
+  font-style: normal;
+}
+
+/* ── SECTION HEADERS ── */
+.section-header {
+  padding: 64px 0 32px;
+  border-bottom: 1px solid rgba(201,147,58,0.2);
+  margin-bottom: 40px;
+}
+
+.section-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--fuchsia);
+  margin-bottom: 10px;
+}
+
+.section-header h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(26px, 4vw, 40px);
+  font-weight: 700;
+  color: var(--plum);
+  line-height: 1.2;
+}
+
+.section-header p {
+  margin-top: 12px;
+  font-size: 15px;
+  color: var(--muted);
+  max-width: 600px;
+}
+
+/* ── CONTENT BLOCKS ── */
+.content-section {
+  margin-bottom: 56px;
+}
+
+.content-section h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--plum);
+  margin-bottom: 12px;
+}
+
+.content-section h4 {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin: 28px 0 10px;
+}
+
+.content-section p {
+  color: #3d2255;
+  margin-bottom: 14px;
+  line-height: 1.8;
+}
+
+.content-section ul {
+  list-style: none;
+  padding: 0;
+}
+
+.content-section ul li {
+  padding: 7px 0 7px 24px;
+  position: relative;
+  color: #3d2255;
+  line-height: 1.7;
+}
+
+.content-section ul li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 16px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--gold);
+}
+
+.numbered-steps {
+  counter-reset: steps;
+  list-style: none;
+  padding: 0;
+}
+
+.numbered-steps li {
+  counter-increment: steps;
+  padding: 16px 16px 16px 64px;
+  position: relative;
+  margin-bottom: 12px;
+  background: var(--white);
+  border: 1px solid rgba(201,147,58,0.15);
+  border-radius: 12px;
+}
+
+.numbered-steps li::before {
+  content: counter(steps);
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--plum);
+  color: var(--gold);
+  font-size: 14px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.numbered-steps li strong {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--plum);
+  margin-bottom: 4px;
+}
+
+.numbered-steps li span {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+/* ── PROMPT BOX ── */
+.prompt-block {
+  margin: 20px 0;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid rgba(201,147,58,0.3);
+}
+
+.prompt-block-header {
+  background: var(--plum);
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.prompt-tag {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 4px 12px;
+  border-radius: 20px;
+  background: rgba(201,147,58,0.2);
+  color: var(--gold-lt);
+}
+
+.prompt-tool {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.4);
+  margin-left: auto;
+}
+
+.prompt-body {
+  background: #fcfaf8;
+  padding: 20px 24px;
+}
+
+.prompt-body .prompt-text {
+  font-size: 14px;
+  line-height: 1.8;
+  color: var(--body);
+  font-style: italic;
+  border-left: 3px solid var(--gold);
+  padding-left: 16px;
+  margin-bottom: 14px;
+}
+
+.prompt-body .why {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--fuchsia);
+  margin-bottom: 6px;
+}
+
+.prompt-body .why-text {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+/* ── FILL-IN BOXES ── */
+.fill-block {
+  background: var(--white);
+  border: 1.5px solid rgba(201,147,58,0.2);
+  border-radius: 12px;
+  padding: 20px 24px;
+  margin: 16px 0;
+}
+
+.fill-block label {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+
+.fill-block .fill-line {
+  border: none;
+  border-bottom: 1.5px solid rgba(201,147,58,0.3);
+  width: 100%;
+  background: transparent;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 14px;
+  color: var(--body);
+  padding: 8px 0;
+  margin-bottom: 12px;
+  display: block;
+  outline: none;
+}
+
+.fill-block .fill-line:focus {
+  border-bottom-color: var(--gold);
+}
+
+.fill-block .fill-line:last-child {
+  margin-bottom: 0;
+}
+
+/* multi-line */
+.fill-block textarea {
+  border: 1.5px solid rgba(201,147,58,0.2);
+  border-radius: 8px;
+  width: 100%;
+  background: var(--soft);
+  font-family: 'Montserrat', sans-serif;
+  font-size: 14px;
+  color: var(--body);
+  padding: 12px 14px;
+  outline: none;
+  resize: vertical;
+  min-height: 90px;
+  line-height: 1.6;
+}
+
+.fill-block textarea:focus {
+  border-color: var(--gold);
+}
+
+/* ── CALLOUT ── */
+.callout {
+  background: linear-gradient(135deg, #1a0a2e 0%, #250f3d 100%);
+  border-radius: 16px;
+  padding: 28px 32px;
+  margin: 28px 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.callout::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 4px;
+  background: linear-gradient(180deg, var(--gold), var(--fuchsia));
+}
+
+.callout p {
+  color: rgba(255,255,255,0.85) !important;
+  font-size: 15px !important;
+  margin: 0 !important;
+}
+
+.callout p strong {
+  color: var(--gold-lt);
+}
+
+/* ── WARNING / TIP ── */
+.tip-box {
+  background: rgba(201,147,58,0.06);
+  border: 1px solid rgba(201,147,58,0.25);
+  border-radius: 10px;
+  padding: 16px 20px;
+  margin: 16px 0;
+  font-size: 13px;
+  color: var(--body);
+}
+
+.tip-box strong {
+  color: var(--gold);
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: 1px;
+  display: block;
+  margin-bottom: 4px;
+}
+
+/* ── DECISION GRID ── */
+.decision-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 16px 0;
+}
+
+.decision-card {
+  background: var(--white);
+  border: 1.5px solid rgba(201,147,58,0.15);
+  border-radius: 12px;
+  padding: 18px 20px;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.decision-card:hover {
+  border-color: var(--gold);
+  background: rgba(201,147,58,0.03);
+}
+
+.decision-card.selected {
+  border-color: var(--gold);
+  background: rgba(201,147,58,0.05);
+}
+
+.decision-card .dc-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+
+.decision-card .dc-value {
+  font-family: 'Playfair Display', serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--plum);
+}
+
+.decision-card .dc-desc {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 4px;
+}
+
+/* ── TEMPLATE BOXES ── */
+.template-box {
+  background: var(--white);
+  border: 1px solid rgba(42,18,69,0.12);
+  border-radius: 14px;
+  overflow: hidden;
+  margin: 20px 0;
+}
+
+.template-box-header {
+  background: var(--soft);
+  padding: 12px 20px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--muted);
+  border-bottom: 1px solid rgba(42,18,69,0.08);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.template-box-header .tbh-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--fuchsia);
+}
+
+.template-box textarea {
+  width: 100%;
+  border: none;
+  background: transparent;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 13.5px;
+  color: var(--body);
+  padding: 20px 24px;
+  resize: vertical;
+  min-height: 160px;
+  line-height: 1.8;
+  outline: none;
+}
+
+/* ── SLIDE STRUCTURE ── */
+.slide-flow {
+  display: grid;
+  gap: 2px;
+  margin: 16px 0;
+}
+
+.slide-item {
+  display: grid;
+  grid-template-columns: 48px 1fr;
+  gap: 0;
+  background: var(--white);
+  border: 1px solid rgba(42,18,69,0.08);
+  border-radius: 0;
+}
+
+.slide-item:first-child { border-radius: 12px 12px 0 0; }
+.slide-item:last-child { border-radius: 0 0 12px 12px; }
+
+.slide-num {
+  background: var(--plum);
+  color: var(--gold);
+  font-size: 13px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.slide-content {
+  padding: 14px 18px;
+}
+
+.slide-content strong {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--plum);
+  margin-bottom: 3px;
+}
+
+.slide-content span {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.slide-content input {
+  border: none;
+  border-bottom: 1px dashed rgba(201,147,58,0.3);
+  width: 100%;
+  background: transparent;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 12px;
+  color: var(--body);
+  padding: 4px 0;
+  margin-top: 6px;
+  outline: none;
+}
+
+/* ── TOOL BADGE ── */
+.tool-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--plum);
+  color: var(--gold-lt);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  padding: 5px 12px;
+  border-radius: 20px;
+  margin: 4px 4px 4px 0;
+}
+
+.tool-badge.notebooklm { background: #1a3a2e; color: #6fdb9e; }
+.tool-badge.chatgpt { background: #0d2a2a; color: #5ec8c8; }
+.tool-badge.claude { background: #1a1a35; color: #a09cf5; }
+.tool-badge.gemini { background: #2a1a00; color: #e8b84b; }
+
+/* ── PROGRESS NAV ── */
+.progress-nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  background: rgba(13,6,24,0.95);
+  backdrop-filter: blur(10px);
+  z-index: 100;
+  padding: 10px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(201,147,58,0.15);
+}
+
+.nav-logo {
+  font-family: 'Playfair Display', serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--gold);
+}
+
+.nav-steps {
+  display: flex;
+  gap: 4px;
+}
+
+.nav-step {
+  width: 28px; height: 4px;
+  border-radius: 2px;
+  background: rgba(255,255,255,0.1);
+  transition: background 0.3s;
+}
+
+.nav-step.active { background: var(--gold); }
+.nav-step.done { background: rgba(201,147,58,0.4); }
+
+/* ── SECTION DIVIDERS ── */
+.gold-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(201,147,58,0.4), transparent);
+  margin: 64px 0;
+}
+
+.dark-section {
+  background: linear-gradient(135deg, var(--deep), var(--plum));
+  margin: 0 -32px;
+  padding: 64px 32px;
+}
+
+.dark-section h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--gold);
+  margin-bottom: 8px;
+}
+
+.dark-section > p {
+  color: rgba(255,255,255,0.5);
+  font-size: 14px;
+  margin-bottom: 36px;
+}
+
+/* ── UPLOAD GRID ── */
+.upload-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin: 16px 0;
+}
+
+.upload-item {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(201,147,58,0.15);
+  border-radius: 10px;
+  padding: 14px 16px;
+  font-size: 13px;
+  color: rgba(255,255,255,0.7);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.upload-item::before {
+  content: '↑';
+  width: 24px; height: 24px;
+  background: rgba(201,147,58,0.15);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: var(--gold);
+  flex-shrink: 0;
+}
+
+/* ── CHECKLIST ── */
+.checklist {
+  list-style: none;
+  padding: 0;
+}
+
+.checklist li {
+  padding: 10px 0 10px 36px;
+  position: relative;
+  border-bottom: 1px solid rgba(201,147,58,0.08);
+  font-size: 14px;
+  color: #3d2255;
+  cursor: pointer;
+}
+
+.checklist li::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 50%;
+  transform: translateY(-50%);
+  width: 20px; height: 20px;
+  border: 2px solid rgba(201,147,58,0.4);
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.checklist li.checked::before {
+  background: var(--gold);
+  border-color: var(--gold);
+}
+
+.checklist li.checked::after {
+  content: '✓';
+  position: absolute;
+  left: 4px; top: 50%;
+  transform: translateY(-50%);
+  font-size: 12px;
+  font-weight: 700;
+  color: white;
+}
+
+/* ── FINAL CTA ── */
+.final-cta {
+  background: linear-gradient(135deg, var(--deep), #1f0735);
+  padding: 80px 48px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.final-cta::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 500px 300px at 50% 50%, rgba(201,147,58,0.1), transparent);
+}
+
+.final-cta h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(28px, 4vw, 48px);
+  font-weight: 900;
+  color: var(--gold);
+  margin-bottom: 16px;
+  position: relative;
+}
+
+.final-cta p {
+  color: rgba(255,255,255,0.6);
+  max-width: 480px;
+  margin: 0 auto 32px;
+  font-size: 15px;
+  position: relative;
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 600px) {
+  .page-wrap { padding: 0 20px 60px; }
+  .decision-grid { grid-template-columns: 1fr; }
+  .upload-grid { grid-template-columns: 1fr; }
+  .mic-drop { padding: 48px 24px; }
+  .cover { padding: 60px 24px; }
+  .progress-nav { display: none; }
+}
+
+/* ── UTILITY ── */
+.spacer-sm { height: 16px; }
+.spacer-md { height: 32px; }
+.spacer-lg { height: 48px; }
+.text-gold { color: var(--gold); }
+.text-fuchsia { color: var(--fuchsia); }
+.bold { font-weight: 700; }
+.italic { font-style: italic; }
+
+</style>
+</head>
+<body>
+
+<!-- PROGRESS NAV -->
+<nav class="progress-nav no-print">
+  <span class="nav-logo">NotebookLM Monetization Engine</span>
+  <div class="nav-steps">
+    <div class="nav-step active" id="s1"></div>
+    <div class="nav-step" id="s2"></div>
+    <div class="nav-step" id="s3"></div>
+    <div class="nav-step" id="s4"></div>
+    <div class="nav-step" id="s5"></div>
+    <div class="nav-step" id="s6"></div>
+    <div class="nav-step" id="s7"></div>
+    <div class="nav-step" id="s8"></div>
+  </div>
+</nav>
+
+<!-- ════════════════════════════════════════ -->
+<!-- COVER -->
+<!-- ════════════════════════════════════════ -->
+<div class="cover" id="top">
+  <div class="cover-glow cover-glow-1"></div>
+  <div class="cover-glow cover-glow-2"></div>
+  <div class="leopard-bg"></div>
+
+  <div class="cover-badge">Your Revenue Sprint Kit</div>
+
+  <h1>
+    NotebookLM Monetization Engine
+    <span>Turn What You Already Created Into a Sellable Offer</span>
+  </h1>
+
+  <div class="cover-divider"></div>
+
+  <p class="cover-tagline">
+    A step-by-step sprint using NotebookLM, ChatGPT, Claude, or Gemini to extract, structure, and sell your best ideas — without starting from scratch.
+  </p>
+
+  <div class="cover-promise">
+    <div class="cover-promise-item">🔥 <strong>8 fire prompts</strong> that do the strategic heavy lifting</div>
+    <div class="cover-promise-item">📦 <strong>Step-by-step workflow</strong> from scattered → sellable</div>
+    <div class="cover-promise-item">🎤 <strong>Plug-and-play templates</strong> — email, posts, slides</div>
+    <div class="cover-promise-item">⚡ <strong>Complete in 1–2 hours.</strong> Launch this week.</div>
+  </div>
+
+  <div class="cover-author">Presented by <strong>Martha Brown</strong> · The Time-Savvy Mom™</div>
+</div>
+
+
+<!-- ════════════════════════════════════════ -->
+<!-- PAGE BODY -->
+<!-- ════════════════════════════════════════ -->
+<div style="padding-top: 48px;">
+
+<div class="page-wrap">
+
+  <!-- MIC DROP INTRO -->
+</div>
+
+<div class="mic-drop" data-section="1">
+  <p>You don't have an idea problem.<br><em>You have a monetization problem.</em></p>
+</div>
+
+<div class="page-wrap">
+
+  <div class="section-header">
+    <div class="section-label">The Truth</div>
+    <h2>Your best work is already done.<br>It's just not packaged to sell.</h2>
+    <p>Right now, your notes, workshops, calls, and content are sitting everywhere — doing nothing. This system changes that. In one focused sprint, you pull the gold out of what already exists and turn it into a clear, sellable offer.</p>
+  </div>
+
+  <div class="content-section">
+    <h4>What you're walking away with</h4>
+    <ul>
+      <li>A clear, monetizable offer pulled from your existing content</li>
+      <li>A structured offer outline ready to teach or sell</li>
+      <li>Your full sales message — email, posts, and hooks</li>
+      <li>A slide flow so you know exactly what to say</li>
+      <li>Confidence that your thing is real, packaged, and worth buying</li>
+    </ul>
+  </div>
+
+  <div class="callout">
+    <p><strong>How this works:</strong> You'll use NotebookLM to mine and extract your best ideas. Then you'll use ChatGPT, Claude, or Gemini to build, sharpen, and sell it. Each prompt tells you which tool to use and why.</p>
+  </div>
+
+  <!-- TOOL GUIDE -->
+  <div class="content-section">
+    <h3>Your AI Toolkit — What Each One Does</h3>
+    <p>You don't need all of them. Pick what you already use. But here's when each one wins:</p>
+
+    <div class="spacer-sm"></div>
+
+    <div class="template-box">
+      <div class="template-box-header">
+        <div class="tbh-dot" style="background:#4CAF50"></div>
+        NotebookLM — Your Content Miner
+      </div>
+      <div style="padding: 20px 24px;">
+        <p style="font-size:14px;color:#3d2255;line-height:1.8;margin-bottom:10px;">Upload your existing content (docs, transcripts, notes, slides) and NotebookLM becomes your personal analyst. It finds patterns across everything you've made, identifies the real transformation you deliver, and extracts your sellable ideas — without hallucinating new ones.</p>
+        <p style="font-size:12px;color:var(--muted);font-style:italic;">Best for: Mining, discovering, pattern-finding. Use it FIRST.</p>
+      </div>
+    </div>
+
+    <div class="template-box">
+      <div class="template-box-header">
+        <div class="tbh-dot" style="background:#5ec8c8"></div>
+        ChatGPT — Your Builder + Copywriter
+      </div>
+      <div style="padding: 20px 24px;">
+        <p style="font-size:14px;color:#3d2255;line-height:1.8;margin-bottom:10px;">Take what NotebookLM found and bring it to ChatGPT to build your offer structure, write sales copy, and generate your promo pack. It's fast, conversational, and great at creating multiple variations fast.</p>
+        <p style="font-size:12px;color:var(--muted);font-style:italic;">Best for: Copywriting, offer structuring, email + social post drafts.</p>
+      </div>
+    </div>
+
+    <div class="template-box">
+      <div class="template-box-header">
+        <div class="tbh-dot" style="background:#a09cf5"></div>
+        Claude — Your Strategic Thinking Partner
+      </div>
+      <div style="padding: 20px 24px;">
+        <p style="font-size:14px;color:#3d2255;line-height:1.8;margin-bottom:10px;">Claude thinks deeply, asks hard questions, and challenges weak positioning. Use it when you want more nuance — sharper messaging, tighter objection handling, or a strategic gut-check on your offer before you launch.</p>
+        <p style="font-size:12px;color:var(--muted);font-style:italic;">Best for: Strategic review, objection handling, positioning clarity.</p>
+      </div>
+    </div>
+
+    <div class="template-box">
+      <div class="template-box-header">
+        <div class="tbh-dot" style="background:#e8b84b"></div>
+        Gemini — Your Research + Trend Checker
+      </div>
+      <div style="padding: 20px 24px;">
+        <p style="font-size:14px;color:#3d2255;line-height:1.8;margin-bottom:10px;">Gemini has real-time web access and integrates with Google Workspace. Use it to validate demand for your offer idea, check what competitors are selling, or research buyer language you should be using in your copy.</p>
+        <p style="font-size:12px;color:var(--muted);font-style:italic;">Best for: Market validation, competitor research, buyer language discovery.</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ─── SECTION 2: SETUP ─── -->
+<div class="dark-section page-break" data-section="2">
+  <div style="max-width:860px;margin:0 auto;">
+    <h2>Step 1: Set Up NotebookLM</h2>
+    <p>Do this before anything else. 5 minutes. Non-negotiable.</p>
+
+    <ol class="numbered-steps" style="margin-bottom:32px;">
+      <li>
+        <strong>Go to notebooklm.google.com</strong>
+        <span>Free. Sign in with your Google account.</span>
+      </li>
+      <li>
+        <strong>Click "New Notebook"</strong>
+        <span>Name it: <em style="color:var(--gold-lt)">My Monetization Sprint — [Your Topic]</em></span>
+      </li>
+      <li>
+        <strong>Upload 2–5 pieces of content around ONE topic</strong>
+        <span>Transcripts, docs, slides, emails, notes. The more aligned, the better the output.</span>
+      </li>
+      <li>
+        <strong>Let it process — then run Prompt 1</strong>
+        <span>NotebookLM reads everything you upload. Give it 30 seconds to index.</span>
+      </li>
+    </ol>
+
+    <h4 style="color:var(--gold);font-size:12px;letter-spacing:2px;text-transform:uppercase;margin-bottom:16px;">What to Upload (pick 2–5 from this list)</h4>
+    <div class="upload-grid">
+      <div class="upload-item">Old workshops or trainings</div>
+      <div class="upload-item">Client call transcripts or Q&As</div>
+      <div class="upload-item">Voice notes (transcribed)</div>
+      <div class="upload-item">Google Docs, brain dumps, outlines</div>
+      <div class="upload-item">Your best-performing emails</div>
+      <div class="upload-item">Social posts that resonated</div>
+      <div class="upload-item">Unfinished course material</div>
+      <div class="upload-item">Slide decks or presentations</div>
+    </div>
+
+    <div class="tip-box" style="background:rgba(201,147,58,0.08);border-color:rgba(201,147,58,0.2);margin-top:24px;">
+      <strong style="color:var(--gold-lt);">⚡ The Rule</strong>
+      <span style="color:rgba(255,255,255,0.65);font-size:13px;">Don't upload random topics. NotebookLM works by finding patterns — the more aligned your uploads are around one topic, the more powerful the output. One clear idea beats five scattered ones every time.</span>
+    </div>
+  </div>
+</div>
+
+<!-- ─── CEO FILTER ─── -->
+<div class="page-wrap" data-section="3">
+
+  <div class="section-header">
+    <div class="section-label">Step 2</div>
+    <h2>The CEO Decision Filter</h2>
+    <p>Before you upload a single thing — get clear on what you're monetizing. This 2-minute decision speeds up everything else.</p>
+  </div>
+
+  <div class="content-section">
+    <p>Don't monetize your biggest idea. Monetize your <strong>clearest</strong> one.</p>
+    <p>Ask yourself:</p>
+    <ul>
+      <li>What do people already ask me about repeatedly?</li>
+      <li>What have I explained, taught, or figured out more than once?</li>
+      <li>What result can I help someone get quickly?</li>
+      <li>What feels easy for me but hard for them?</li>
+    </ul>
+    <div class="callout">
+      <p><strong>The fastest path to revenue</strong> is your most <em>repeatable</em> result — the thing you've already helped someone with, even informally.</p>
+    </div>
+
+    <div class="fill-block">
+      <label>My monetization idea for this sprint</label>
+      <input class="fill-line" placeholder="The ONE idea I'm turning into an offer..." type="text">
+      <label style="margin-top:16px;">Who is this for?</label>
+      <input class="fill-line" placeholder="Specifically who — not 'everyone'..." type="text">
+      <label style="margin-top:16px;">What result do they get?</label>
+      <input class="fill-line" placeholder="Be specific. Not 'grow their business.' What exactly changes?" type="text">
+    </div>
+  </div>
+
+</div>
+
+<!-- ─── THE 8 PROMPTS ─── -->
+</div>
+
+<div class="mic-drop" data-section="4">
+  <p>Now we run the prompts.<br><em>This is where scattered ideas become real money.</em></p>
+</div>
+
+<div style="padding-top:0;">
+<div class="page-wrap">
+
+  <div class="section-header">
+    <div class="section-label">The Prompt Stack</div>
+    <h2>8 Prompts That Build Your Offer From Scratch</h2>
+    <p>Run these in order. Each one builds on the last. Copy, paste, and edit your answers in the fill-in boxes below each prompt.</p>
+  </div>
+
+  <!-- PROMPT 1 -->
+  <div class="content-section">
+    <h3>Prompt 1: Find the Money</h3>
+    <p>This is your foundation. Most people skip straight to "what should I make?" and get stuck. This forces the AI to think like a buyer — not a content creator.</p>
+
+    <div class="prompt-block">
+      <div class="prompt-block-header">
+        <span class="prompt-tag">Prompt 1</span>
+        <span class="prompt-tool"><span class="tool-badge notebooklm">NotebookLM</span></span>
+      </div>
+      <div class="prompt-body">
+        <div class="prompt-text">
+          "Looking across all of the content I've uploaded, identify the most specific, urgent, and monetizable problem being solved. Don't give me vague themes or categories. Give me clear, real-world problems that people actively struggle with and would pay to fix. Rank your top 3 findings by: (1) urgency for the person experiencing it, and (2) speed to tangible results. For each one, explain why it ranks there."
+        </div>
+        <div class="why">Why this prompt works</div>
+        <div class="why-text">You're forcing NotebookLM to think commercially — not academically. Vague summaries are useless. This extracts the specific pain people will open their wallets for.</div>
+      </div>
+    </div>
+
+    <div class="fill-block">
+      <label>Top Problem (most urgent + fastest results)</label>
+      <input class="fill-line" type="text" placeholder="NotebookLM's #1 finding...">
+      <label style="margin-top:14px;">Second Option</label>
+      <input class="fill-line" type="text" placeholder="NotebookLM's #2 finding...">
+      <label style="margin-top:14px;">My gut choice (which one feels truest to me?)</label>
+      <input class="fill-line" type="text" placeholder="The one I'm running with...">
+    </div>
+  </div>
+
+  <!-- PROMPT 2 -->
+  <div class="content-section">
+    <h3>Prompt 2: Extract the Transformation</h3>
+    <p>People don't buy information. They buy the bridge from where they are to where they want to be. This prompt pins that bridge down.</p>
+
+    <div class="prompt-block">
+      <div class="prompt-block-header">
+        <span class="prompt-tag">Prompt 2</span>
+        <span class="prompt-tool"><span class="tool-badge notebooklm">NotebookLM</span></span>
+      </div>
+      <div class="prompt-body">
+        <div class="prompt-text">
+          "For the top problem you identified — define the transformation in precise detail. What does someone's reality look like BEFORE they solve this problem (what are they feeling, doing, struggling with daily)? What does their reality look like AFTER they have the solution (what's different, what's easier, what's possible now)? Make both sides as vivid and specific as possible."
+        </div>
+        <div class="why">Why this prompt works</div>
+        <div class="why-text">The Before/After contrast is the core of every sale. If you can't describe both sides with specificity, you don't have a sellable offer — yet. This prompt builds that clarity from YOUR content.</div>
+      </div>
+    </div>
+
+    <div class="fill-block">
+      <label>BEFORE — Their messy reality right now</label>
+      <textarea placeholder="What they're feeling, struggling with, doing every day that isn't working..."></textarea>
+      <label style="margin-top:16px;">AFTER — Life with the solution</label>
+      <textarea placeholder="What changes, what gets easier, what's now possible for them..."></textarea>
+    </div>
+  </div>
+
+  <!-- PROMPT 3 -->
+  <div class="content-section">
+    <h3>Prompt 3: Build the Offer</h3>
+    <p>Now you take that transformation and turn it into a product. Not "my course" — an actual structured thing someone can buy.</p>
+
+    <div class="prompt-block">
+      <div class="prompt-block-header">
+        <span class="prompt-tag">Prompt 3</span>
+        <span class="prompt-tool"><span class="tool-badge chatgpt">ChatGPT</span> <span class="tool-badge claude">Claude</span></span>
+      </div>
+      <div class="prompt-body">
+        <div class="prompt-text">
+          "I help [WHO] go from [BEFORE state] to [AFTER state]. I want to turn this into a simple, sellable offer. Give me: (1) 5 compelling title options using the formula: Result + Speed + Who It's For, (2) a one-sentence promise statement that captures the core outcome, (3) 4–5 specific outcomes they walk away with, and (4) 3 different format options (workshop, mini-course, sprint kit, etc.) that would work for this. For each format, tell me the pros and cons."
+        </div>
+        <div class="why">Why this prompt works</div>
+        <div class="why-text">You're giving the AI your exact transformation language (from Prompt 2) so it builds from YOUR reality — not generic output. The format options help you pick the path of least resistance to launch.</div>
+      </div>
+    </div>
+
+    <div class="fill-block">
+      <label>Offer Title (pick or remix from AI output)</label>
+      <input class="fill-line" type="text" placeholder="Your offer name...">
+      <label style="margin-top:14px;">Promise Statement (1 sentence — what they walk away with)</label>
+      <input class="fill-line" type="text" placeholder="By the end of this, you will...">
+      <label style="margin-top:14px;">Format I'm going with</label>
+      <input class="fill-line" type="text" placeholder="Live workshop / recorded sprint / PDF kit / etc...">
+    </div>
+
+    <div class="fill-block" style="margin-top:12px;">
+      <label>Key Outcomes (what they get — 4–5 bullets)</label>
+      <input class="fill-line" type="text" placeholder="Outcome 1...">
+      <input class="fill-line" type="text" placeholder="Outcome 2...">
+      <input class="fill-line" type="text" placeholder="Outcome 3...">
+      <input class="fill-line" type="text" placeholder="Outcome 4...">
+    </div>
+  </div>
+
+  <!-- PROMPT 4 -->
+  <div class="content-section">
+    <h3>Prompt 4: Make It Irresistible</h3>
+    <p>Same offer. Different angle. This prompt finds the positioning that makes people feel like they'd be crazy not to buy.</p>
+
+    <div class="prompt-block">
+      <div class="prompt-block-header">
+        <span class="prompt-tag">Prompt 4</span>
+        <span class="prompt-tool"><span class="tool-badge chatgpt">ChatGPT</span> <span class="tool-badge claude">Claude</span></span>
+      </div>
+      <div class="prompt-body">
+        <div class="prompt-text">
+          "Here's my offer: [paste your title + promise statement]. Give me 5 completely different positioning angles for this — each one targeting a different emotional driver (fear of losing time, desire for status, frustration with the current situation, hope for ease, urgency around a deadline or cost of inaction). For each angle, write a 2–3 sentence hook that I could use as an opening line for a post, email, or video."
+        </div>
+        <div class="why">Why this prompt works</div>
+        <div class="why-text">Most people promote their offer from one angle, to one emotion, forever. Your buyer has multiple reasons to say yes — this finds them all. Pick the one that lands hardest for your audience.</div>
+      </div>
+    </div>
+
+    <div class="fill-block">
+      <label>My strongest positioning angle</label>
+      <textarea placeholder="Paste the hook that hit hardest from the AI output..."></textarea>
+      <label style="margin-top:14px;">Why this angle resonates with my specific audience</label>
+      <textarea placeholder="What about MY people makes this the right angle?"></textarea>
+    </div>
+  </div>
+
+  <!-- PROMPT 5 -->
+  <div class="content-section">
+    <h3>Prompt 5: Structure the Content</h3>
+    <p>Now you know what you're selling. This prompt builds the actual teaching flow — what you'll walk them through inside the offer.</p>
+
+    <div class="prompt-block">
+      <div class="prompt-block-header">
+        <span class="prompt-tag">Prompt 5</span>
+        <span class="prompt-tool"><span class="tool-badge notebooklm">NotebookLM</span> <span class="tool-badge chatgpt">ChatGPT</span></span>
+      </div>
+      <div class="prompt-body">
+        <div class="prompt-text">
+          "Based on the transformation from [BEFORE] to [AFTER], create a simple, logical step-by-step structure I can use to teach this. Each step should: (1) have a clear, action-oriented name, (2) explain what the person does in that step, and (3) explain what shifts or becomes possible after completing it. Keep it to 4–6 steps max. The goal is that someone could follow this structure and get the promised result — not feel like they're in a college course."
+        </div>
+        <div class="why">Why this prompt works</div>
+        <div class="why-text">NotebookLM can pull the structure from your actual content — it's probably already in there. Or let ChatGPT build it from your transformation. Either way: simple frameworks sell. Complicated ones don't.</div>
+      </div>
+    </div>
+
+    <div class="fill-block">
+      <label>My Teaching Framework (name it — your methodology)</label>
+      <input class="fill-line" type="text" placeholder="e.g. The 3-Step Clarity Sprint / The Content-to-Cash Method...">
+      <label style="margin-top:14px;">Step 1</label>
+      <input class="fill-line" type="text" placeholder="Step name + what they do...">
+      <label style="margin-top:10px;">Step 2</label>
+      <input class="fill-line" type="text" placeholder="Step name + what they do...">
+      <label style="margin-top:10px;">Step 3</label>
+      <input class="fill-line" type="text" placeholder="Step name + what they do...">
+      <label style="margin-top:10px;">Step 4 (if needed)</label>
+      <input class="fill-line" type="text" placeholder="Step name + what they do...">
+    </div>
+  </div>
+
+  <!-- PROMPT 6 -->
+  <div class="content-section">
+    <h3>Prompt 6: Kill the Objections</h3>
+    <p>The objections are already in their head before they even see your offer. This prompt names them and neutralizes them so your sales message does the work.</p>
+
+    <div class="prompt-block">
+      <div class="prompt-block-header">
+        <span class="prompt-tag">Prompt 6</span>
+        <span class="prompt-tool"><span class="tool-badge claude">Claude</span> <span class="tool-badge chatgpt">ChatGPT</span></span>
+      </div>
+      <div class="prompt-body">
+        <div class="prompt-text">
+          "My offer is: [title + one-line description]. My target buyer is [who]. List the top 6 reasons this person would hesitate, talk themselves out of buying, or say 'not right now.' For EACH objection: (1) write the exact internal thought they'd have, (2) explain the real fear or belief underneath that thought, and (3) give me a 1–2 sentence response I can build into my sales copy that addresses it without sounding defensive."
+        </div>
+        <div class="why">Why this prompt works</div>
+        <div class="why-text">Claude is particularly sharp at this — it goes beneath the surface objection to the real one. Knowing what your buyer is secretly thinking is the difference between copy that converts and copy that gets politely ignored.</div>
+      </div>
+    </div>
+
+    <div class="fill-block">
+      <label>Top 3 Objections + My Response (from AI output)</label>
+      <textarea style="min-height:130px;" placeholder="Objection 1: [their thought] → My response: [how I address it]&#10;&#10;Objection 2: [their thought] → My response: [how I address it]&#10;&#10;Objection 3: [their thought] → My response: [how I address it]"></textarea>
+    </div>
+  </div>
+
+  <!-- PROMPT 7 -->
+  <div class="content-section">
+    <h3>Prompt 7: Write the Sales Message</h3>
+    <p>This becomes your landing page intro, your email body, your DM script. One prompt, reused everywhere.</p>
+
+    <div class="prompt-block">
+      <div class="prompt-block-header">
+        <span class="prompt-tag">Prompt 7</span>
+        <span class="prompt-tool"><span class="tool-badge chatgpt">ChatGPT</span> <span class="tool-badge claude">Claude</span></span>
+      </div>
+      <div class="prompt-body">
+        <div class="prompt-text">
+          "Write a short, punchy sales message for my offer. Here's what you need to know: [Offer name]. [Who it's for]. [Before state — what they're dealing with]. [After state — what changes]. [Top objection — and my response to it]. [Price and format]. Write this in a tone that is: direct, confident, conversational, a little bold — not salesy or hype-y. Open with a hook that calls out the exact frustration. End with a clear, simple CTA. Under 250 words."
+        </div>
+        <div class="why">Why this prompt works</div>
+        <div class="why-text">You're feeding the AI your actual transformation language, your audience's real objections, and a clear tone brief — so instead of generic copy, you get something that actually sounds like you and speaks to your buyer.</div>
+      </div>
+    </div>
+
+    <div class="fill-block">
+      <label>My Sales Message (edit until it sounds like you)</label>
+      <textarea style="min-height:160px;" placeholder="Paste the AI output here, then make it yours — change words, tighten sentences, inject your voice..."></textarea>
+    </div>
+  </div>
+
+  <!-- PROMPT 8 -->
+  <div class="content-section">
+    <h3>Prompt 8: Validate the Demand</h3>
+    <p>Before you spend hours building — take 10 minutes to confirm people actually want this. This prompt is your reality check.</p>
+
+    <div class="prompt-block">
+      <div class="prompt-block-header">
+        <span class="prompt-tag">Prompt 8</span>
+        <span class="prompt-tool"><span class="tool-badge gemini">Gemini</span> <span class="tool-badge chatgpt">ChatGPT</span></span>
+      </div>
+      <div class="prompt-body">
+        <div class="prompt-text">
+          "I'm about to launch an offer called [title] for [who]. Before I build it, help me validate demand. Search for evidence that people are actively looking for solutions to this problem. What are they Googling? What questions are they asking in communities, subreddits, or forums? What language do they use when they describe this problem themselves? Are there competitors solving this and what are their buyers saying in reviews or comments? Give me the real words buyers use — not marketing language."
+        </div>
+        <div class="why">Why this prompt works</div>
+        <div class="why-text">Gemini has live web access — use that. The buyer language it finds is pure gold for your copy. If people are searching for it and talking about it, you have demand. If not, pivot now before you build. This 10 minutes can save you weeks.</div>
+      </div>
+    </div>
+
+    <div class="fill-block">
+      <label>Key buyer language I found (exact words they use)</label>
+      <textarea placeholder="These are the phrases I'm stealing for my copy..."></textarea>
+      <label style="margin-top:16px;">Demand confirmed? What I'm adjusting based on this</label>
+      <input class="fill-line" type="text" placeholder="Yes / No / Pivoting to...">
+    </div>
+  </div>
+
+  <!-- MAKE IT REAL -->
+  <div class="gold-divider"></div>
+
+  <div class="content-section" data-section="5">
+    <div class="section-label" style="font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--fuchsia);margin-bottom:10px;">Step 3</div>
+    <h3>Make It Real — Decide Fast</h3>
+    <p>You have clarity now. Here's where people get stuck — in decision fatigue. Pick and move. Done beats perfect.</p>
+
+    <h4>Format</h4>
+    <div class="decision-grid" id="format-grid">
+      <div class="decision-card" onclick="select(this,'format-grid')">
+        <div class="dc-label">Option A</div>
+        <div class="dc-value">Live Workshop</div>
+        <div class="dc-desc">Sell first, deliver live. Fastest to revenue.</div>
+      </div>
+      <div class="decision-card" onclick="select(this,'format-grid')">
+        <div class="dc-label">Option B</div>
+        <div class="dc-value">On-Demand</div>
+        <div class="dc-desc">Record once, sell forever. More setup, longer payoff.</div>
+      </div>
+      <div class="decision-card" onclick="select(this,'format-grid')">
+        <div class="dc-label">Option C</div>
+        <div class="dc-value">Sprint Kit</div>
+        <div class="dc-desc">PDF + prompts + templates. Simple and fast to build.</div>
+      </div>
+      <div class="decision-card" onclick="select(this,'format-grid')">
+        <div class="dc-label">Option D</div>
+        <div class="dc-value">Mini-Course</div>
+        <div class="dc-desc">3–5 short modules. Mid-effort, mid-price point.</div>
+      </div>
+    </div>
+
+    <h4>Price Point</h4>
+    <div class="decision-grid" id="price-grid">
+      <div class="decision-card" onclick="select(this,'price-grid')">
+        <div class="dc-label">Entry</div>
+        <div class="dc-value">$27</div>
+        <div class="dc-desc">Low friction. Volume. Build the list.</div>
+      </div>
+      <div class="decision-card" onclick="select(this,'price-grid')">
+        <div class="dc-label">Sweet Spot</div>
+        <div class="dc-value">$47</div>
+        <div class="dc-desc">Proven transformation. Good value signal.</div>
+      </div>
+      <div class="decision-card" onclick="select(this,'price-grid')">
+        <div class="dc-label">Authority</div>
+        <div class="dc-value">$97</div>
+        <div class="dc-desc">Deep support + structure. Positions you as the expert.</div>
+      </div>
+      <div class="decision-card" onclick="select(this,'price-grid')">
+        <div class="dc-label">Premium</div>
+        <div class="dc-value">$147+</div>
+        <div class="dc-desc">High-touch or live access included. Proven audience.</div>
+      </div>
+    </div>
+
+    <div class="fill-block" style="margin-top:16px;">
+      <label>Launch Date (not "soon" — an actual date)</label>
+      <input class="fill-line" type="text" placeholder="I'm putting this out on: ___________">
+      <label style="margin-top:14px;">How I'm selling it first (DMs, email, post, etc.)</label>
+      <input class="fill-line" type="text" placeholder="My launch channel...">
+    </div>
+
+    <div class="callout">
+      <p><strong>You can sell before you build.</strong> Post about it today. Take pre-orders. Run a live workshop before you record anything. The people who say yes before you build are your most motivated buyers — and their questions will make your offer better.</p>
+    </div>
+  </div>
+
+</div>
+
+<!-- ─── SLIDE STRUCTURE ─── -->
+<div class="dark-section page-break" data-section="6">
+  <div style="max-width:860px;margin:0 auto;">
+    <h2>Plug-and-Play Slide Structure</h2>
+    <p>Use this to build your workshop, sales presentation, or video training. Fill in each slot.</p>
+
+    <div class="slide-flow">
+      <div class="slide-item">
+        <div class="slide-num">1</div>
+        <div class="slide-content">
+          <strong>The Hook — Call Out Their Exact Reality</strong>
+          <span>Open with the frustration they're living right now. Not a question. A statement that makes them think "how does she know?"</span>
+          <input type="text" placeholder="Your opening line...">
+        </div>
+      </div>
+      <div class="slide-item">
+        <div class="slide-num">2</div>
+        <div class="slide-content">
+          <strong>The Real Problem — Not What They Think</strong>
+          <span>Reframe their problem. They think it's X. It's actually Y. This is where you become the expert.</span>
+          <input type="text" placeholder="The real reason they're stuck...">
+        </div>
+      </div>
+      <div class="slide-item">
+        <div class="slide-num">3</div>
+        <div class="slide-content">
+          <strong>The Consequence — What Staying Stuck Costs</strong>
+          <span>What keeps happening if nothing changes? Time, money, energy, opportunity. Make the cost of inaction real.</span>
+          <input type="text" placeholder="If nothing changes, they'll...">
+        </div>
+      </div>
+      <div class="slide-item">
+        <div class="slide-num">4</div>
+        <div class="slide-content">
+          <strong>The Shift — Your Big Idea</strong>
+          <span>Introduce your framework or method. "You don't need X. You need Y." This is your intellectual property.</span>
+          <input type="text" placeholder="Your framework name + the core shift...">
+        </div>
+      </div>
+      <div class="slide-item">
+        <div class="slide-num">5</div>
+        <div class="slide-content">
+          <strong>Step 1 of Your Framework</strong>
+          <span>Teach it simply. One concept per slide. Action-oriented.</span>
+          <input type="text" placeholder="Step 1 name + key point...">
+        </div>
+      </div>
+      <div class="slide-item">
+        <div class="slide-num">6</div>
+        <div class="slide-content">
+          <strong>Step 2 of Your Framework</strong>
+          <input type="text" placeholder="Step 2 name + key point...">
+        </div>
+      </div>
+      <div class="slide-item">
+        <div class="slide-num">7</div>
+        <div class="slide-content">
+          <strong>Step 3 of Your Framework</strong>
+          <input type="text" placeholder="Step 3 name + key point...">
+        </div>
+      </div>
+      <div class="slide-item">
+        <div class="slide-num">8</div>
+        <div class="slide-content">
+          <strong>The Proof / Example</strong>
+          <span>Case study, client result, or your own story. Before → After. Specific numbers or details if possible.</span>
+          <input type="text" placeholder="My example or result...">
+        </div>
+      </div>
+      <div class="slide-item">
+        <div class="slide-num">9</div>
+        <div class="slide-content">
+          <strong>The Offer — What You're Inviting Them Into</strong>
+          <span>Simple, clear. Name + what's inside + price. Don't bury the offer. Own it.</span>
+          <input type="text" placeholder="Here's what I've created for you...">
+        </div>
+      </div>
+      <div class="slide-item">
+        <div class="slide-num">10</div>
+        <div class="slide-content">
+          <strong>The Close — One Clear Next Step</strong>
+          <span>Not multiple options. One action. One link. One instruction.</span>
+          <input type="text" placeholder="Your CTA...">
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── PROMO PACK ─── -->
+<div class="page-wrap" data-section="7">
+
+  <div class="section-header">
+    <div class="section-label">Step 4 — Promo Pack</div>
+    <h2>Your First Sales Assets</h2>
+    <p>Use these templates as your starting point. Fill in the brackets with your actual offer details, then run them through ChatGPT or Claude to punch them up in your voice.</p>
+  </div>
+
+  <!-- EMAIL -->
+  <div class="content-section">
+    <h3>Launch Email Template</h3>
+    <p>Send this to your list the day you open the offer. Short, direct, no fluff.</p>
+
+    <div class="template-box">
+      <div class="template-box-header">
+        <div class="tbh-dot"></div>
+        Email Template — Fill In the Brackets
+      </div>
+      <textarea>Subject: You don't need another [course/idea/strategy]
+
+You don't need more [content / ideas / information].
+
+You need a clear path from where you are to where you want to be.
+
+Right now, [your ideal buyer] is dealing with [specific problem]. And every time they try to fix it, they [what they're doing wrong / the cycle they're stuck in].
+
+I built something to cut through that.
+
+[OFFER NAME] is a [format] that helps [who] go from [before state] to [after state] in [timeframe / format].
+
+Here's what's inside:
+→ [Outcome 1]
+→ [Outcome 2]
+→ [Outcome 3]
+
+[Price]. [Access details].
+
+No overwhelm. No fluff. Just [the one result].
+
+→ [YOUR LINK HERE]
+
+[Your name]
+
+P.S. [Add urgency, a deadline, a bonus, or a "this is for you if..." line]</textarea>
+    </div>
+
+    <div class="tip-box">
+      <strong>🔥 Upgrade this with AI</strong>
+      Copy this template into ChatGPT or Claude with: "Rewrite this in a voice that is [your adjectives: direct / warm / bold / conversational]. Don't add hype. Keep it under 200 words. Make the hook stronger."
+    </div>
+  </div>
+
+  <!-- SOCIAL POSTS -->
+  <div class="content-section">
+    <h3>Social Post Templates</h3>
+    <p>Three post frameworks. Mix and match. Make them yours.</p>
+
+    <h4>Post 1 — The Problem Post (stops the scroll)</h4>
+    <div class="template-box">
+      <div class="template-box-header">
+        <div class="tbh-dot" style="background:var(--gold)"></div>
+        Social Post Template #1
+      </div>
+      <textarea>You don't have a [idea / content / time] problem.
+
+You have a "[specific bottleneck]" problem.
+
+Most [your audience] I talk to are:
+→ [Doing Thing 1 that isn't working]
+→ [Doing Thing 2 that isn't working]
+→ [Stuck in this cycle]
+
+And wondering why [the result they want] still hasn't happened.
+
+Here's the truth: [Your reframe / core insight].
+
+That's exactly what [OFFER NAME] is built to fix.
+
+[CTA — link in bio / drop a word in comments / DM me X]</textarea>
+    </div>
+
+    <h4>Post 2 — The Credibility Post (shows you know)</h4>
+    <div class="template-box">
+      <div class="template-box-header">
+        <div class="tbh-dot" style="background:var(--gold)"></div>
+        Social Post Template #2
+      </div>
+      <textarea>Here's what I've learned after [timeframe / number of clients / your experience]:
+
+[Your big insight #1]
+[Your big insight #2]
+[Your big insight #3]
+
+The [people / clients / creators] who [get results] aren't [doing the thing most people think].
+
+They're doing [the real thing that works].
+
+That's the difference.
+
+And it's exactly what I walk you through in [OFFER NAME].
+
+[Format]. [Price]. [CTA].</textarea>
+    </div>
+
+    <h4>Post 3 — The Urgency/Invitation Post (makes them act)</h4>
+    <div class="template-box">
+      <div class="template-box-header">
+        <div class="tbh-dot" style="background:var(--gold)"></div>
+        Social Post Template #3
+      </div>
+      <textarea>This is your sign.
+
+If you've been [procrastinating / overthinking / sitting on this idea] — this is for you.
+
+[OFFER NAME] is open.
+
+Inside:
+✦ [Outcome 1]
+✦ [Outcome 2]
+✦ [Outcome 3]
+
+[Price]. [Timeframe or access details].
+
+If you're a [who it's for] who is tired of [the pain] and ready to [the result] — this is built for you.
+
+[LINK / CTA]
+
+Drop [WORD] in the comments and I'll send you the link directly.</textarea>
+    </div>
+  </div>
+
+  <!-- HOOK BANK -->
+  <div class="content-section">
+    <h3>Hook Bank</h3>
+    <p>Steal these. Remix them. Use them as your opening line for any post, email, reel, or video.</p>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px;">
+      <div style="background:var(--white);border:1px solid rgba(201,147,58,0.15);border-radius:10px;padding:14px 16px;font-size:13px;color:var(--body);font-style:italic;">"You don't have a [X] problem. You have a [real thing] problem."</div>
+      <div style="background:var(--white);border:1px solid rgba(201,147,58,0.15);border-radius:10px;padding:14px 16px;font-size:13px;color:var(--body);font-style:italic;">"Stop [common advice]. Start [what actually works]."</div>
+      <div style="background:var(--white);border:1px solid rgba(201,147,58,0.15);border-radius:10px;padding:14px 16px;font-size:13px;color:var(--body);font-style:italic;">"The [result] isn't in another [course/tool/strategy]. It's in [your answer]."</div>
+      <div style="background:var(--white);border:1px solid rgba(201,147,58,0.15);border-radius:10px;padding:14px 16px;font-size:13px;color:var(--body);font-style:italic;">"Here's what nobody tells you about [topic]:"</div>
+      <div style="background:var(--white);border:1px solid rgba(201,147,58,0.15);border-radius:10px;padding:14px 16px;font-size:13px;color:var(--body);font-style:italic;">"I talked to [X] [your audience] this week. Every single one said [common pain]."</div>
+      <div style="background:var(--white);border:1px solid rgba(201,147,58,0.15);border-radius:10px;padding:14px 16px;font-size:13px;color:var(--body);font-style:italic;">"You're not behind. You're just missing [the one thing]."</div>
+      <div style="background:var(--white);border:1px solid rgba(201,147,58,0.15);border-radius:10px;padding:14px 16px;font-size:13px;color:var(--body);font-style:italic;">"This is the part they skip. It's also the reason [result] isn't happening."</div>
+      <div style="background:var(--white);border:1px solid rgba(201,147,58,0.15);border-radius:10px;padding:14px 16px;font-size:13px;color:var(--body);font-style:italic;">"The fastest path to [result] isn't [what they think]. It's [your truth]."</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ─── CHECKLIST ─── -->
+</div>
+
+<div class="mic-drop" data-section="8">
+  <p><em>Done is the whole strategy.</em><br>Pick a date. Put it out. Let it be simple.</p>
+</div>
+
+<div style="padding-top:0;">
+<div class="page-wrap">
+
+  <div class="section-header">
+    <div class="section-label">Your Launch Checklist</div>
+    <h2>Everything You Need Before You Go Live</h2>
+    <p>Click each item to check it off as you complete it.</p>
+  </div>
+
+  <div class="content-section">
+    <ul class="checklist" id="launch-checklist">
+      <li onclick="this.classList.toggle('checked')">Ran all 8 prompts and filled in my answers</li>
+      <li onclick="this.classList.toggle('checked')">Chose my offer title and wrote my promise statement</li>
+      <li onclick="this.classList.toggle('checked')">Decided on format and price point</li>
+      <li onclick="this.classList.toggle('checked')">Set my launch date (a real date, not "soon")</li>
+      <li onclick="this.classList.toggle('checked')">Wrote my sales message (Prompt 7 output — edited in my voice)</li>
+      <li onclick="this.classList.toggle('checked')">Built my slide flow (or recording outline) using the template</li>
+      <li onclick="this.classList.toggle('checked')">Wrote my launch email using the template</li>
+      <li onclick="this.classList.toggle('checked')">Drafted at least 1 social post using the templates</li>
+      <li onclick="this.classList.toggle('checked')">Created a place to sell it (Stan Store / Kajabi / direct DM)</li>
+      <li onclick="this.classList.toggle('checked')">Posted or emailed about it at least once</li>
+    </ul>
+  </div>
+
+</div>
+
+<!-- ─── FINAL CTA ─── -->
+<div class="final-cta">
+  <h2>Your next offer already exists.</h2>
+  <p>You just pulled it out, named it, structured it, and built the assets to sell it. Now the only move left is to go do it.</p>
+  <div style="position:relative;display:inline-block;margin-top:8px;padding:16px 36px;border:1.5px solid var(--gold);border-radius:8px;color:var(--gold);font-size:14px;font-weight:600;letter-spacing:1px;text-transform:uppercase;">Pick a date. Put it out. Let it be simple.</div>
+</div>
+
+</div>
+
+<script>
+function select(el, gridId) {
+  document.querySelectorAll('#'+gridId+' .decision-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+// Progress nav
+const sections = document.querySelectorAll('[data-section]');
+const steps = document.querySelectorAll('.nav-step');
+
+const obs = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const idx = parseInt(entry.target.dataset.section) - 1;
+      steps.forEach((s, i) => {
+        s.classList.remove('active','done');
+        if (i < idx) s.classList.add('done');
+        if (i === idx) s.classList.add('active');
+      });
+    }
+  });
+}, { threshold: 0.3 });
+
+sections.forEach(s => obs.observe(s));
+</script>
+
+</body>
+</html>
